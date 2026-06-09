@@ -4,7 +4,7 @@ from decimal import Decimal
 from sqlalchemy import String, Integer, Numeric, DateTime, Text
 from sqlalchemy import CheckConstraint
 from sqlalchemy import func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
@@ -22,6 +22,12 @@ class Restaurant(Base):
         ),
     )
 
+    favorites: Mapped[list["Favorite"]] = relationship(
+        "Favorite",
+        back_populates="restaurant",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
