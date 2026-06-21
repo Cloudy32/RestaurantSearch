@@ -13,6 +13,7 @@ bot = Bot(token=get_settings().bot_token)
 dp = Dispatcher()
 dp.include_routers(start_router, restaurant_router)
 dp.message.middleware(DBMiddleware(async_session_maker))
+dp.callback_query.middleware(DBMiddleware(async_session_maker))
 
 async def on_startup():
     await dp.start_polling(bot)
