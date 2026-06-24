@@ -5,13 +5,14 @@ from app.core.config import get_settings
 
 from app.bot.handlers.start import start_router
 from app.bot.handlers.search import search_router
+from app.bot.handlers.favorites import favorite_router
 from app.bot.handlers.restaurants import restaurant_router
 from app.bot.middleware.database import DBMiddleware
 from app.db.session import async_session_maker
 
 bot = Bot(token=get_settings().bot_token)
 dp = Dispatcher()
-dp.include_routers(start_router, restaurant_router)
+dp.include_routers(start_router, restaurant_router, favorite_router)
 dp.message.middleware(DBMiddleware(async_session_maker))
 dp.callback_query.middleware(DBMiddleware(async_session_maker))
 

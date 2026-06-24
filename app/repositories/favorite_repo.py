@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models.favorite import Favorite
@@ -38,7 +39,7 @@ class FavoriteRepository:
 
     async def get_all_favorites(self, user_id: int) -> list[Favorite]:
 
-        stmt = select(Favorite).where(Favorite.user_id == user_id)
+        stmt = select(Favorite).options(selectinload(Favorite.restaurant)).where(Favorite.user_id == user_id)
         result = await self.session.execute(stmt)
         return result.scalars().all()
 
