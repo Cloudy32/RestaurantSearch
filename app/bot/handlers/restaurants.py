@@ -5,7 +5,7 @@ from aiogram.filters import Command
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.bot.keyboards.inline import inline_keyboard
+from app.bot.keyboards.inline import add_to_favorite_keyboard
 from app.repositories.restaurant_repo import RestaurantRepository
 from app.services.restaurant_service import RestaurantService
 from app.repositories.favorite_repo import FavoriteRepository
@@ -15,6 +15,7 @@ from app.services.user_service import UserService
 
 
 restaurant_router = Router()
+
 
 @restaurant_router.message(Command("restaurants"))
 async def restaurants(message: Message, session: AsyncSession):
@@ -39,7 +40,8 @@ async def restaurants(message: Message, session: AsyncSession):
             f"Средний чек: {average_check}"
         )
 
-        await message.answer(text, reply_markup=inline_keyboard(restaurant.id))
+        await message.answer(text, reply_markup=add_to_favorite_keyboard(restaurant.id))
+
 
 @restaurant_router.callback_query(F.data.startswith("add_favorite:"))
 async def add_favorite(callback_query: CallbackQuery, session: AsyncSession):
