@@ -48,3 +48,13 @@ class RestaurantRepository:
         await self.session.commit()
         await self.session.refresh(restaurant)
         return restaurant
+
+    async def search_by_city(self, city: str, limit: int = 5) -> list[Restaurant]:
+
+        stmt = ((select(Restaurant)
+                .where(Restaurant.city.ilike(f"%{city}%"))
+                .order_by(Restaurant.id))
+                .limit(limit))
+
+        result = await self.session.execute(stmt)
+        return result.scalars().all()

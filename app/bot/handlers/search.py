@@ -1,3 +1,45 @@
-from aiogram import Router, F
+from aiogram import Router
+from aiogram.types import Message
+from aiogram.filters import Command
 
-search_router=Router()
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.bot.keyboards.inline import add_to_favorite_keyboard
+from app.repositories.restaurant_repo import RestaurantRepository
+from app.services.search_service import SearchService
+
+search_router = Router()
+
+
+@search_router.message(Command('search'))
+async def search(message: Message, session: AsyncSession):
+
+    repository = RestaurantRepository(session)
+    service = SearchService(repository)
+
+    parts = message.text.split(maxsplit=1)
+    if len(parts) != 2:
+        await message.answer("Напиши город после команды: /search Москва")
+        return
+
+    city = parts[1]
+
+    restaurants = await service.search_by_city(city)
+
+    if not restaurants:
+        await message.answer("Рестораны в этом городе не найдены")
+        return
+
+    for restaurant in restaurants:
+        rating = restaurant.rating if restaurant.rating is not None else "Не указан"
+        average_check = restaurant.average_check if restaurant.average_check is not None else "Не указан"
+
+        text = (
+            f"{restaurant.id}. {restaurant.name}\n"
+            f"Город: {restaurant.city}\n"
+            f"Адрес: {restaurant.address}\n"
+            f"Рейтинг: {rating}\n"
+            f"Средний чек: {average_check}"
+        )
+
+        await message.answer(text, reply_markup=add_to_favorite_keyboard(restaurant.id))
