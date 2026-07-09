@@ -24,6 +24,10 @@ async def search(message: Message, session: AsyncSession):
 
     query = parts[1]
 
+    if len(query) < 2:
+        await message.answer("Запрос слишком короткий")
+        return
+
     restaurants = await service.search(query)
 
     if not restaurants:

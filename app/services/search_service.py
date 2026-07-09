@@ -12,4 +12,10 @@ class SearchService:
         return await self.repository.search_by_city(city)
 
     async def search(self, query: str) -> list[Restaurant]:
+
+        query = query.strip()
+
+        if len(query) < 2:
+            return []
+
         return await self.repository.search(query)
