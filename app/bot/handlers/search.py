@@ -19,15 +19,15 @@ async def search(message: Message, session: AsyncSession):
 
     parts = message.text.split(maxsplit=1)
     if len(parts) != 2:
-        await message.answer("Напиши город после команды: /search Москва")
+        await message.answer("Напиши запрос после команды: /search (Город) или (Название)")
         return
 
-    city = parts[1]
+    query = parts[1]
 
-    restaurants = await service.search_by_city(city)
+    restaurants = await service.search(query)
 
     if not restaurants:
-        await message.answer("Рестораны в этом городе не найдены")
+        await message.answer("Ресторанов по данному запросу не найдено")
         return
 
     for restaurant in restaurants:
@@ -36,6 +36,7 @@ async def search(message: Message, session: AsyncSession):
 
         text = (
             f"{restaurant.id}. {restaurant.name}\n"
+            f"Описание: {restaurant.description}\n"
             f"Город: {restaurant.city}\n"
             f"Адрес: {restaurant.address}\n"
             f"Рейтинг: {rating}\n"

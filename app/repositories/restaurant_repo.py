@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models.restaurant import Restaurant
@@ -55,6 +55,25 @@ class RestaurantRepository:
                 .where(Restaurant.city.ilike(f"%{city}%"))
                 .order_by(Restaurant.id))
                 .limit(limit))
+
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
+
+    async def search(self, query: str, limit: int = 5) -> list[Restaurant]:
+
+        stmt = (
+            select(Restaurant)
+            .where(
+                or_(
+                    Restaurant.name.ilike(f"%{query}%"),
+                    Restaurant.city.ilike(f"%{query}%"),
+                    Restaurant.address.ilike(f"%{query}%"),
+                    Restaurant.description.ilike(f"%{query}%")
+                )
+            )
+            .order_by(Restaurant.id)
+            .limit(limit)
+        )
 
         result = await self.session.execute(stmt)
         return result.scalars().all()
