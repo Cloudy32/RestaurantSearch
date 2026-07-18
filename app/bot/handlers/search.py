@@ -22,7 +22,7 @@ async def search(message: Message, session: AsyncSession):
         await message.answer("Напиши запрос после команды: /search (Город) или (Название)")
         return
 
-    query = parts[1]
+    query = parts[1].strip()
 
     if len(query) < 2:
         await message.answer("Запрос слишком короткий")
