@@ -49,7 +49,12 @@ class RestaurantRepository:
         await self.session.refresh(restaurant)
         return restaurant
 
-    async def search(self, query: str, limit: int = 5) -> list[Restaurant]:
+    async def search(
+            self,
+            query: str,
+            limit: int = 5,
+            max_average_check: int | None = None
+    ) -> list[Restaurant]:
 
         stmt = (
             select(Restaurant)
@@ -61,13 +66,17 @@ class RestaurantRepository:
                     Restaurant.description.ilike(f"%{query}%")
                 )
             )
-            .order_by(
-                nulls_last(Restaurant.rating.desc()),
-                nulls_last(Restaurant.average_check.asc()),
-                Restaurant.id.asc(),
-            )
-            .limit(limit)
         )
+
+        if max_average_check is not None:
+            stmt = stmt.where(Restaurant.average_check <= max_average_check)
+
+        stmt = stmt.order_by(
+            nulls_last(Restaurant.rating.desc()),
+            nulls_last(Restaurant.average_check.asc()),
+            Restaurant.id.asc()
+        )
+        stmt = stmt.limit(limit)
 
         result = await self.session.execute(stmt)
         return result.scalars().all()

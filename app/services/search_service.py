@@ -8,11 +8,16 @@ class SearchService:
     def __init__(self, repository: RestaurantRepository) -> None:
         self.repository = repository
 
-    async def search(self, query: str, limit: int = 5) -> list[Restaurant]:
+    async def search(
+            self,
+            query: str,
+            limit: int = 5,
+            max_average_check: int | None = None
+    ) -> list[Restaurant]:
 
         query = query.strip()
 
         if len(query) < 2:
             return []
 
-        return await self.repository.search(query, limit)
+        return await self.repository.search(query, limit, max_average_check)
