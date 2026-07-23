@@ -5,6 +5,7 @@ from aiogram.filters import Command
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.bot.formatters.restaurant import format_restaurant_card
 from app.bot.keyboards.inline import add_to_favorite_keyboard
 from app.repositories.restaurant_repo import RestaurantRepository
 from app.services.restaurant_service import RestaurantService
@@ -29,19 +30,7 @@ async def restaurants(message: Message, session: AsyncSession):
         return
 
     for restaurant in restaurants:
-        rating = restaurant.rating if restaurant.rating is not None else "Не указан"
-        average_check = restaurant.average_check if restaurant.average_check is not None else "Не указан"
-        description = restaurant.description if restaurant.description is not None else "Не указано"
-
-        text = (
-            f"{restaurant.id}. {restaurant.name}\n"
-            f"Описание: {description}\n"
-            f"Город: {restaurant.city}\n"
-            f"Адрес: {restaurant.address}\n"
-            f"Рейтинг: {rating}\n"
-            f"Средний чек: {average_check}"
-        )
-
+        text = format_restaurant_card(restaurant)
         await message.answer(text, reply_markup=add_to_favorite_keyboard(restaurant.id))
 
 
