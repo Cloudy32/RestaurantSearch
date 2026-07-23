@@ -11,6 +11,24 @@ from app.services.search_service import SearchService
 search_router = Router()
 
 
+def parse_search_query(query_text: str) -> tuple[str, int | None]:
+
+    query_text = query_text.strip()
+    query_parts = query_text.split()
+
+    max_average_check = None
+
+    if not query_parts:
+        return "", None
+    elif query_parts[-1].isdigit():
+        max_average_check = int(query_parts[-1])
+        query = " ".join(query_parts[:-1])
+    else:
+        query = query_text
+
+    return query, max_average_check
+
+
 @search_router.message(Command('search'))
 async def search(message: Message, session: AsyncSession):
 
@@ -22,20 +40,7 @@ async def search(message: Message, session: AsyncSession):
         await message.answer("Напиши запрос после команды: /search (Город) или (Название)")
         return
 
-    query_text = parts[1].strip()
-    query_parts = query_text.split()
-
-    if not query_parts:
-        await message.answer("Запрос слишком короткий")
-        return
-
-    max_average_check = None
-
-    if query_parts[-1].isdigit():
-        max_average_check = int(query_parts[-1])
-        query = " ".join(query_parts[:-1])
-    else:
-        query = query_text
+    query, max_average_check = parse_search_query(parts[1])
 
     if len(query) < 2:
         await message.answer("Запрос слишком короткий")
