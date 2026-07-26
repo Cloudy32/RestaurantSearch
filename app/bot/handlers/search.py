@@ -4,30 +4,13 @@ from aiogram.filters import Command
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.bot.parsers.search import parse_search_query
 from app.bot.formatters.restaurant import format_restaurant_card
 from app.bot.keyboards.inline import add_to_favorite_keyboard
 from app.repositories.restaurant_repo import RestaurantRepository
 from app.services.search_service import SearchService
 
 search_router = Router()
-
-
-def parse_search_query(query_text: str) -> tuple[str, int | None]:
-
-    query_text = query_text.strip()
-    query_parts = query_text.split()
-
-    max_average_check = None
-
-    if not query_parts:
-        return "", None
-    elif query_parts[-1].isdigit():
-        max_average_check = int(query_parts[-1])
-        query = " ".join(query_parts[:-1])
-    else:
-        query = query_text
-
-    return query, max_average_check
 
 
 @search_router.message(Command('search'))
