@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from sqlalchemy import select, or_, nulls_last
+from sqlalchemy import select, or_, nulls_last, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models.restaurant import Restaurant
@@ -56,16 +56,22 @@ class RestaurantRepository:
             max_average_check: int | None = None
     ) -> list[Restaurant]:
 
-        stmt = (
-            select(Restaurant)
-            .where(
+        search_words = query.split()
+        search_conditions = []
+
+        for word in search_words:
+            search_conditions.append(
                 or_(
-                    Restaurant.name.ilike(f"%{query}%"),
-                    Restaurant.city.ilike(f"%{query}%"),
-                    Restaurant.address.ilike(f"%{query}%"),
-                    Restaurant.description.ilike(f"%{query}%")
+                    Restaurant.name.ilike(f"%{word}%"),
+                    Restaurant.city.ilike(f"%{word}%"),
+                    Restaurant.address.ilike(f"%{word}%"),
+                    Restaurant.description.ilike(f"%{word}%")
                 )
             )
+
+        stmt = (
+            select(Restaurant)
+            .where(and_(*search_conditions))
         )
 
         if max_average_check is not None:
