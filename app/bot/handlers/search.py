@@ -24,13 +24,22 @@ async def search(message: Message, session: AsyncSession):
         await message.answer("Напиши запрос после команды: /search (Город) или (Название)")
         return
 
-    query, max_average_check = parse_search_query(parts[1])
+    query, max_average_check, min_rating = parse_search_query(parts[1])
 
-    if len(query) < 2:
+    if not query and max_average_check is None and min_rating is None:
         await message.answer("Запрос слишком короткий")
         return
 
-    restaurants = await service.search(query, limit=5, max_average_check=max_average_check)
+    if query and len(query) < 2:
+        await message.answer("Запрос слишком короткий")
+        return
+
+    restaurants = await service.search(
+        query=query,
+        limit=5,
+        max_average_check=max_average_check,
+        min_rating=min_rating
+    )
 
     if not restaurants:
         await message.answer("Ресторанов по данному запросу не найдено")

@@ -57,23 +57,23 @@ class RestaurantRepository:
             min_rating: Decimal | None = None
     ) -> list[Restaurant]:
 
-        search_words = query.split()
-        search_conditions = []
+        stmt = select(Restaurant)
 
-        for word in search_words:
-            search_conditions.append(
-                or_(
-                    Restaurant.name.ilike(f"%{word}%"),
-                    Restaurant.city.ilike(f"%{word}%"),
-                    Restaurant.address.ilike(f"%{word}%"),
-                    Restaurant.description.ilike(f"%{word}%")
+        if query:
+            search_words = query.split()
+            search_conditions = []
+
+            for word in search_words:
+                search_conditions.append(
+                    or_(
+                        Restaurant.name.ilike(f"%{word}%"),
+                        Restaurant.city.ilike(f"%{word}%"),
+                        Restaurant.address.ilike(f"%{word}%"),
+                        Restaurant.description.ilike(f"%{word}%")
+                    )
                 )
-            )
 
-        stmt = (
-            select(Restaurant)
-            .where(and_(*search_conditions))
-        )
+            stmt = stmt.where(and_(*search_conditions))
 
         if max_average_check is not None:
             stmt = stmt.where(Restaurant.average_check <= max_average_check)

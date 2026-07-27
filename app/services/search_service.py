@@ -20,7 +20,10 @@ class SearchService:
 
         query = query.strip()
 
-        if len(query) < 2:
+        if not query and max_average_check is None and min_rating is None:
+            return []
+
+        if query and len(query) < 2:
             return []
 
         return await self.repository.search(
