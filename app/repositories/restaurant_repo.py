@@ -53,7 +53,8 @@ class RestaurantRepository:
             self,
             query: str,
             limit: int = 5,
-            max_average_check: int | None = None
+            max_average_check: int | None = None,
+            min_rating: Decimal | None = None
     ) -> list[Restaurant]:
 
         search_words = query.split()
@@ -76,6 +77,9 @@ class RestaurantRepository:
 
         if max_average_check is not None:
             stmt = stmt.where(Restaurant.average_check <= max_average_check)
+
+        if min_rating is not None:
+            stmt = stmt.where(Restaurant.rating >= min_rating)
 
         stmt = stmt.order_by(
             nulls_last(Restaurant.rating.desc()),

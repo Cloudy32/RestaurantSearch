@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from app.db.models.restaurant import Restaurant
 
 from app.repositories.restaurant_repo import RestaurantRepository
@@ -12,7 +14,8 @@ class SearchService:
             self,
             query: str,
             limit: int = 5,
-            max_average_check: int | None = None
+            max_average_check: int | None = None,
+            min_rating: Decimal | None = None
     ) -> list[Restaurant]:
 
         query = query.strip()
@@ -20,4 +23,9 @@ class SearchService:
         if len(query) < 2:
             return []
 
-        return await self.repository.search(query, limit, max_average_check)
+        return await self.repository.search(
+            query=query,
+            limit=limit,
+            max_average_check=max_average_check,
+            min_rating=min_rating
+        )
