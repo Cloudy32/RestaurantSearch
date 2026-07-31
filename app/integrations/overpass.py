@@ -40,9 +40,11 @@ class OverpassClient:
             if not name:
                 continue
 
-            external_id = f"osm:{element.get('type')}:{element.get('id')}"
+            source = f"osm"
+            external_id = f"{element.get('type')}:{element.get('id')}"
 
             restaurant = {
+                "source": source,
                 "external_id": external_id,
                 "name": name,
                 "city": city,

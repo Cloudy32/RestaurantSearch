@@ -31,6 +31,8 @@ class RestaurantRepository:
             rating: Decimal | None,
             latitude: Decimal | None,
             longitude: Decimal | None,
+            source: str | None = None,
+            external_id: str | None = None,
     ) -> Restaurant:
 
         restaurant = Restaurant(
@@ -41,7 +43,9 @@ class RestaurantRepository:
             average_check=average_check,
             rating=rating,
             latitude=latitude,
-            longitude=longitude
+            longitude=longitude,
+            source=source,
+            external_id=external_id,
         )
 
         self.session.add(restaurant)
@@ -90,3 +94,18 @@ class RestaurantRepository:
 
         result = await self.session.execute(stmt)
         return result.scalars().all()
+
+    async def get_by_source_and_external_id(
+            self,
+            source: str,
+            external_id: str
+    ) -> Restaurant | None:
+
+        stmt = select(Restaurant).where(
+            Restaurant.source == source,
+            Restaurant.external_id == external_id,
+        )
+
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+

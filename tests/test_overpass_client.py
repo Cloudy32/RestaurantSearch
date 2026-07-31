@@ -23,7 +23,8 @@ def test_parse_restaurants():
     restaurants = client.parse_restaurants(data, city="Bryansk")
 
     assert len(restaurants) == 1
-    assert restaurants[0]["external_id"] == "osm:node:123"
+    assert restaurants[0]["source"] == "osm"
+    assert restaurants[0]["external_id"] == "node:123"
     assert restaurants[0]["name"] == "Августин"
     assert restaurants[0]["city"] == "Bryansk"
     assert restaurants[0]["address"] == "Some street"
