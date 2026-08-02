@@ -9,6 +9,8 @@ from app.bot.formatters.restaurant import format_restaurant_card
 from app.bot.keyboards.inline import add_to_favorite_keyboard
 from app.repositories.restaurant_repo import RestaurantRepository
 from app.services.search_service import SearchService
+from app.services.restaurant_service import RestaurantService
+from app.integrations.overpass import OverpassClient
 
 search_router = Router()
 
@@ -17,7 +19,13 @@ search_router = Router()
 async def search(message: Message, session: AsyncSession):
 
     repository = RestaurantRepository(session)
-    service = SearchService(repository)
+    restaurant_service = RestaurantService(repository)
+    client = OverpassClient()
+    service = SearchService(
+        repository=repository,
+        restaurant_service=restaurant_service,
+        client=client,
+    )
 
     parts = message.text.split(maxsplit=1)
     if len(parts) != 2:
@@ -34,12 +42,15 @@ async def search(message: Message, session: AsyncSession):
         await message.answer("Запрос слишком короткий")
         return
 
-    restaurants = await service.search(
-        query=query,
-        limit=5,
-        max_average_check=max_average_check,
-        min_rating=min_rating
-    )
+    if max_average_check or min_rating:
+        restaurants = await service.search(
+            query=query,
+            limit=5,
+            max_average_check=max_average_check,
+            min_rating=min_rating
+        )
+    else:
+        restaurants = await service.search_with_external_fallback(query=query, limit=5)
 
     if not restaurants:
         await message.answer("Ресторанов по данному запросу не найдено")

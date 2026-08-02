@@ -1,4 +1,5 @@
 from aiogram import Bot, Dispatcher
+import asyncio
 
 from app.core.config import get_settings
 
@@ -23,3 +24,5 @@ dp.callback_query.middleware(DBMiddleware(async_session_maker))
 async def on_startup():
     await dp.start_polling(bot)
 
+if __name__ == '__main__':
+    asyncio.run(on_startup())
