@@ -15,9 +15,16 @@ class OverpassClient:
         }
 
         overpass_query = f"""
-        [out:json][timeout:10];
-        node["amenity"="restaurant"](53.15,34.20,53.35,34.55);
-        out tags {limit};
+        [out:json][timeout:25];
+        area["name"="{city}"]["place"~"city|town"]->.searchArea;
+        
+        (
+        node["amenity"="restaurant"](area.searchArea);
+        way["amenity"="restaurant"](area.searchArea);
+        relation["amenity"="restaurant"](area.searchArea);
+        );
+        
+        out center tags {limit};
         """
 
         data = {"data": overpass_query}
