@@ -1,3 +1,6 @@
+import httpx
+import logging
+
 from decimal import Decimal
 
 from app.db.models.restaurant import Restaurant
@@ -5,6 +8,8 @@ from app.db.models.restaurant import Restaurant
 from app.repositories.restaurant_repo import RestaurantRepository
 from app.services.restaurant_service import RestaurantService
 from app.integrations.overpass import OverpassClient
+
+logger = logging.getLogger(__name__)
 
 
 class SearchService:
@@ -70,8 +75,16 @@ class SearchService:
         else:
             name_query = None
 
-        data = await self.overpass_client.search_restaurants(city=city, limit=limit)
-        restaurants = self.overpass_client.parse_restaurants(data=data, city=city)
+        try:
+            data = await self.overpass_client.search_restaurants(city=city, limit=limit)
+            restaurants = self.overpass_client.parse_restaurants(data=data, city=city)
+        except httpx.HTTPError as ex:
+            logger.warning(
+                f"Overpass search failed for city=%s: %s",
+                city,
+                ex,
+            )
+            return []
 
         if name_query:
             name_query = name_query.lower()
