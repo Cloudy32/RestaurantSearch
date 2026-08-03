@@ -24,7 +24,7 @@ async def search(message: Message, session: AsyncSession):
     service = SearchService(
         repository=repository,
         restaurant_service=restaurant_service,
-        client=client,
+        overpass_client=client,
     )
 
     parts = message.text.split(maxsplit=1)
