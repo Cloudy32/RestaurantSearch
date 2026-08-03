@@ -80,7 +80,7 @@ class SearchService:
             restaurants = self.overpass_client.parse_restaurants(data=data, city=city)
         except httpx.HTTPError as ex:
             logger.warning(
-                f"Overpass search failed for city=%s: %s",
+                "Overpass search failed for city=%s: %s",
                 city,
                 ex,
             )
