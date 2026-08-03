@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from sqlalchemy import select
+from sqlalchemy import select, or_, nulls_last, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models.restaurant import Restaurant
@@ -31,6 +31,8 @@ class RestaurantRepository:
             rating: Decimal | None,
             latitude: Decimal | None,
             longitude: Decimal | None,
+            source: str | None = None,
+            external_id: str | None = None,
     ) -> Restaurant:
 
         restaurant = Restaurant(
@@ -41,10 +43,69 @@ class RestaurantRepository:
             average_check=average_check,
             rating=rating,
             latitude=latitude,
-            longitude=longitude
+            longitude=longitude,
+            source=source,
+            external_id=external_id,
         )
 
         self.session.add(restaurant)
         await self.session.commit()
         await self.session.refresh(restaurant)
         return restaurant
+
+    async def search(
+            self,
+            query: str,
+            limit: int = 5,
+            max_average_check: int | None = None,
+            min_rating: Decimal | None = None
+    ) -> list[Restaurant]:
+
+        stmt = select(Restaurant)
+
+        if query:
+            search_words = query.split()
+            search_conditions = []
+
+            for word in search_words:
+                search_conditions.append(
+                    or_(
+                        Restaurant.name.ilike(f"%{word}%"),
+                        Restaurant.city.ilike(f"%{word}%"),
+                        Restaurant.address.ilike(f"%{word}%"),
+                        Restaurant.description.ilike(f"%{word}%")
+                    )
+                )
+
+            stmt = stmt.where(and_(*search_conditions))
+
+        if max_average_check is not None:
+            stmt = stmt.where(Restaurant.average_check <= max_average_check)
+
+        if min_rating is not None:
+            stmt = stmt.where(Restaurant.rating >= min_rating)
+
+        stmt = stmt.order_by(
+            nulls_last(Restaurant.rating.desc()),
+            nulls_last(Restaurant.average_check.asc()),
+            Restaurant.id.asc()
+        )
+        stmt = stmt.limit(limit)
+
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
+
+    async def get_by_source_and_external_id(
+            self,
+            source: str,
+            external_id: str
+    ) -> Restaurant | None:
+
+        stmt = select(Restaurant).where(
+            Restaurant.source == source,
+            Restaurant.external_id == external_id,
+        )
+
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+

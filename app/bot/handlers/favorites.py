@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.bot.keyboards.inline import remove_from_favorite_keyboard
 
+from app.bot.formatters.restaurant import format_restaurant_card
 from app.repositories.favorite_repo import FavoriteRepository
 from app.services.favorite_service import FavoriteService
 from app.repositories.user_repo import UserRepository
@@ -42,18 +43,7 @@ async def get_favorites(message: Message, session: AsyncSession):
     for favorite in favorites:
 
         restaurant = favorite.restaurant
-
-        rating = restaurant.rating if restaurant.rating is not None else "Не указан"
-        average_check = restaurant.average_check if restaurant.average_check is not None else "Не указан"
-
-        text = (
-            f"{restaurant.id}. {restaurant.name}\n"
-            f"Описание: {restaurant.description}\n"
-            f"Город: {restaurant.city}\n"
-            f"Адрес: {restaurant.address}\n"
-            f"Рейтинг: {rating}\n"
-            f"Средний чек: {average_check}"
-        )
+        text = format_restaurant_card(restaurant)
 
         await message.answer(text, reply_markup=remove_from_favorite_keyboard(restaurant.id))
 
