@@ -54,7 +54,10 @@ async def search(message: Message, session: AsyncSession):
         restaurants = await service.search_with_external_fallback(query=query, limit=5)
 
     if not restaurants:
-        await message.answer("Ресторанов по данному запросу не найдено")
+        await message.answer("Ресторанов по данному запросу не найдено.\n\nПопробуй:\n"
+                             "- указать город на русском: /search <Город>\n"
+                             "- написать название и город: /search <Название ресторана> <Город>\n"
+                             "- проверить средний чек: /search <Средний чек>")
         return
 
     for restaurant in restaurants:
