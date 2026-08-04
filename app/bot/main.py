@@ -4,6 +4,7 @@ import asyncio
 from app.core.config import get_settings
 
 from app.bot.handlers.start import start_router
+from app.bot.handlers.help import help_router
 from app.bot.handlers.favorites import favorite_router
 from app.bot.handlers.restaurants import restaurant_router
 from app.bot.handlers.search import search_router
@@ -14,15 +15,13 @@ bot = Bot(token=get_settings().bot_token)
 dp = Dispatcher()
 dp.include_routers(
     start_router,
+    help_router,
     restaurant_router,
     favorite_router,
-    search_router
+    search_router,
 )
 dp.message.middleware(DBMiddleware(async_session_maker))
 dp.callback_query.middleware(DBMiddleware(async_session_maker))
 
 async def on_startup():
     await dp.start_polling(bot)
-
-if __name__ == '__main__':
-    asyncio.run(on_startup())
