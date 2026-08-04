@@ -29,7 +29,8 @@ async def search(message: Message, session: AsyncSession):
 
     parts = message.text.split(maxsplit=1)
     if len(parts) != 2:
-        await message.answer("Напиши запрос после команды: /search (Город) или (Название)")
+        await message.answer("Напиши запрос после команды.\n\nПримеры:\n/search <Город>\n"
+                             "/search <Название ресторана> <Город>\n/search <Средний чек>\n/search <Оценка от 0 до 5>")
         return
 
     query, max_average_check, min_rating = parse_search_query(parts[1])
