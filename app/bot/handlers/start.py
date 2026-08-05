@@ -23,6 +23,9 @@ async def start(message: Message, session: AsyncSession):
         message.from_user.first_name
     )
 
-    await message.answer(f"Привет {message.from_user.first_name} я бот по поиску хороших ресторанов, в которых ты"
-                         f"сможешь хорошо провести время(сытно позавтракать, вкусно пообедать или хорошо провести вечер!")
+    await message.answer(f"Привет {message.from_user.first_name} я бот по поиску хороших ресторанов, в которых ты "
+                         f"сможешь хорошо провести время(сытно позавтракать, вкусно пообедать или хорошо провести вечер! "
+                         f"Используй /help или меню что бы понять что к чему😉"
+                         )
+
 

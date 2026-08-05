@@ -26,7 +26,7 @@ async def restaurants(message: Message, session: AsyncSession):
 
     restaurants = await service.get_all(limit=5)
     if not restaurants:
-        await message.answer("Рестораны пока не добавлены")
+        await message.answer("Рестораны пока не добавлены.\n\nПопробуй найти их через /search.")
         return
 
     for restaurant in restaurants:
@@ -54,4 +54,4 @@ async def add_favorite(callback_query: CallbackQuery, session: AsyncSession):
     restaurant_id = int(callback_query.data.split(":")[1])
 
     await favorite_service.get_or_create_favorite(user_id, restaurant_id)
-    await callback_query.answer("Добавлено в избранное")
+    await callback_query.answer("Ресторан сохранён в избранное", show_alert=False)

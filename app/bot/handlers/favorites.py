@@ -37,7 +37,9 @@ async def get_favorites(message: Message, session: AsyncSession):
     favorites = await favorite_service.get_all(user_id)
 
     if not favorites:
-        await message.answer("Ваш список избранного пустой")
+        await message.answer("Ваш список избранного пуст.\n\n"
+                             "Найди ресторан через /search и нажми “Добавить в избранное”."
+                             )
         return
 
     for favorite in favorites:
@@ -73,6 +75,6 @@ async def remove_favorite(callback_query: CallbackQuery, session: AsyncSession):
 
     if result:
         await callback_query.message.edit_reply_markup(reply_markup=None)
-        return await callback_query.answer("Удалено из избранного")
+        return await callback_query.answer("Ресторан удалён из избранного")
 
-    return await callback_query.answer("Этого ресторана уже нет в избранном")
+    return await callback_query.answer("Ресторан уже удалён из избранного")
