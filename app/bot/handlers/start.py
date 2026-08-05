@@ -4,7 +4,6 @@ from aiogram.filters import CommandStart
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.bot.keyboards.reply import main_menu_keyboard
 from app.repositories.user_repo import UserRepository
 from app.services.user_service import UserService
 
@@ -26,7 +25,7 @@ async def start(message: Message, session: AsyncSession):
 
     await message.answer(f"Привет {message.from_user.first_name} я бот по поиску хороших ресторанов, в которых ты "
                          f"сможешь хорошо провести время(сытно позавтракать, вкусно пообедать или хорошо провести вечер! "
-                         f"Снизу ты видишь основные команды, используй /help что бы понять что к чему😉"
-                         , reply_markup=main_menu_keyboard())
+                         f"Используй /help или меню что бы понять что к чему😉"
+                         )
 
 
