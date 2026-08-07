@@ -9,7 +9,7 @@ from alembic import context
 
 from app.core.config import get_settings
 from app.db.base import Base
-from app.db.models.restaurant import Restaurant
+import app.db.models
 
 settings = get_settings()
 
