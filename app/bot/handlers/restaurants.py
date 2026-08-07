@@ -2,7 +2,6 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.bot.formatters.restaurant import format_restaurant_card
@@ -13,7 +12,7 @@ from app.repositories.favorite_repo import FavoriteRepository
 from app.services.favorite_service import FavoriteService
 from app.repositories.user_repo import UserRepository
 from app.services.user_service import UserService
-
+from app.bot.parsers.callback_data import parse_restaurant_callback_data
 
 restaurant_router = Router()
 
@@ -51,7 +50,14 @@ async def add_favorite(callback_query: CallbackQuery, session: AsyncSession):
     favorite_repository = FavoriteRepository(session)
     favorite_service = FavoriteService(favorite_repository)
 
-    restaurant_id = int(callback_query.data.split(":")[1])
+    restaurant_id = parse_restaurant_callback_data(
+        callback_query.data,
+        "add_favorite",
+    )
+
+    if restaurant_id is None:
+        await callback_query.answer("Не удалось обработать кнопку")
+        return
 
     await favorite_service.get_or_create_favorite(user_id, restaurant_id)
     await callback_query.answer("Ресторан сохранён в избранное", show_alert=False)

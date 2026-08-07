@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.bot.keyboards.inline import remove_from_favorite_keyboard
 
 from app.bot.formatters.restaurant import format_restaurant_card
+from app.bot.parsers.callback_data import parse_restaurant_callback_data
 from app.repositories.favorite_repo import FavoriteRepository
 from app.services.favorite_service import FavoriteService
 from app.repositories.user_repo import UserRepository
@@ -69,7 +70,14 @@ async def remove_favorite(callback_query: CallbackQuery, session: AsyncSession):
     favorite_repository = FavoriteRepository(session)
     favorite_service = FavoriteService(favorite_repository)
 
-    restaurant_id = int(callback_query.data.split(":")[1])
+    restaurant_id = parse_restaurant_callback_data(
+        callback_query.data,
+        "remove_favorite",
+    )
+
+    if restaurant_id is None:
+        await callback_query.answer("Не удалось обработать кнопку")
+        return
 
     result = await favorite_service.remove_favorite(user_id, restaurant_id)
 
